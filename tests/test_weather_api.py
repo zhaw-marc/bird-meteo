@@ -4,7 +4,7 @@ AUTHOR: Marc Vogelmann
 """
 
 import pandas as pd
-from src.weather_api import get_historical_weather, get_weather_description
+from src.weather_api import get_weather_data, get_weather_description
 
 
 def test_get_weather_description():
@@ -14,14 +14,14 @@ def test_get_weather_description():
     assert get_weather_description(999) == "Unknown code (999)"
 
 
-def test_get_historical_weather():
+def test_get_weather_data():
     """Verify that historical weather data is fetched and formatted correctly."""
     # Test for Zurich coordinates, a few days in Jan 2024
     lat, lon = 47.3769, 8.5417
     start = "2024-01-01"
     end = "2024-01-02"
 
-    df = get_historical_weather(lat, lon, start, end)
+    df = get_weather_data(lat, lon, start, end)
 
     assert isinstance(df, pd.DataFrame)
     assert not df.empty

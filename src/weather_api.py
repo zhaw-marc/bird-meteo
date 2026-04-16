@@ -77,7 +77,7 @@ def get_weather_description(code: int) -> str:
     return WEATHER_CODES.get(code, f"Unknown code ({code})")
 
 
-def get_historical_weather(
+def get_weather_data(
     lat: float,
     lon: float,
     start_date: str,
