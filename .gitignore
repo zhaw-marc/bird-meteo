@@ -1,3 +1,7 @@
 .venv/
+__pycache__/
 data/ebird
 .DS_Store
+data/ebird.db
+data/ebird.db-shm
+data/ebird.db-wal
