@@ -97,6 +97,24 @@ source .venv/bin/activate          # macOS/Linux
 pip install -r requirements.txt
 ```
 
+### Daten herunterladen & Datenbank erstellen
+
+Die eBird-Rohdaten sind nicht im Repo enthalten (~2 GB). Lade sie über das
+bereitgestellte Script herunter und baue anschliessend die SQLite-Datenbank:
+
+```bash
+# eBird-Daten von SWITCHdrive herunterladen (Link aus data/link.url)
+python scripts/download_ebird.py
+
+# SQLite-Datenbank erstellen (data/ebird.db)
+python scripts/build_database.py
+```
+
+Nach dem Build enthält `data/ebird.db` zwei Tabellen:
+
+- **observations** – eine Zeile pro Vogelsichtung (Art, Anzahl, Ort, Datum …)
+- **checklists** – eine Zeile pro Checklist / Sampling-Event (Aufwand, Protokoll …)
+
 ## Projektstruktur
 
 ```
