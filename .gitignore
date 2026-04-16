@@ -6,3 +6,5 @@ data/ebird.db
 data/ebird.db-shm
 data/ebird.db-wal
 .cache/
+CLAUDE.md
+GEMINI.md

@@ -18,6 +18,8 @@ streamlit
 folium
 streamlit-folium
 plotly
+matplotlib
+seaborn
 
 # LLM integration
 anthropic
