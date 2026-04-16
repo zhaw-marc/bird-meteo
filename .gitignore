@@ -6,5 +6,7 @@ data/ebird.db
 data/ebird.db-shm
 data/ebird.db-wal
 .cache/
+.streamlit/secrets.toml
+.env
 CLAUDE.md
 GEMINI.md
