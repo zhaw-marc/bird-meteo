@@ -5,3 +5,4 @@ data/ebird
 data/ebird.db
 data/ebird.db-shm
 data/ebird.db-wal
+.cache/
