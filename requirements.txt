@@ -1,2 +1,23 @@
+# Code quality
 black
 pytest
+
+# Data processing
+pandas
+numpy
+scipy
+
+# API & Networking
+requests
+openmeteo-requests
+requests-cache
+retry-requests
+
+# Visualization & App
+streamlit
+folium
+streamlit-folium
+plotly
+
+# LLM integration
+anthropic
