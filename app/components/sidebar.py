@@ -33,24 +33,36 @@ def render_sidebar() -> dict:
     # Date range filter
     st.sidebar.subheader("Date Range")
     
+    DATA_LIMIT_DATE = date(2024, 12, 31)
+    
     if "date_range" not in st.session_state:
-        st.session_state.date_range = (date(2023, 1, 1), date(2023, 12, 31))
+        st.session_state.date_range = (date(2023, 1, 1), DATA_LIMIT_DATE)
         
     date_range = st.sidebar.date_input(
         "Select Range",
         value=st.session_state.date_range,
         min_value=date(2015, 1, 1),
-        max_value=date(2024, 12, 31),
+        max_value=date.today(), # Allow selection up to today to avoid UI errors
         key="date_range_input"
     )
     
-    # Handle both single date and range (streamlit date_input returns a tuple for range)
+    # Handle selection
     if isinstance(date_range, tuple) and len(date_range) == 2:
-        st.session_state.date_range = date_range
-    elif isinstance(date_range, date):
-        # If user only clicked one date so far, we keep it as a range from that date to itself
-        # though usually it's a tuple.
-        pass
+        start, end = date_range
+        # Cap at data limit
+        if end > DATA_LIMIT_DATE:
+            st.sidebar.warning(f"Data only available until {DATA_LIMIT_DATE}. Capping selection.")
+            end = DATA_LIMIT_DATE
+        st.session_state.date_range = (start, end)
+    elif isinstance(date_range, list) and len(date_range) == 2: # Some versions return list
+        start, end = date_range[0], date_range[1]
+        if end > DATA_LIMIT_DATE:
+            end = DATA_LIMIT_DATE
+        st.session_state.date_range = (start, end)
+    
+    # Final check to ensure we always have a valid 2-element tuple in session_state
+    if not isinstance(st.session_state.date_range, (tuple, list)) or len(st.session_state.date_range) != 2:
+        st.session_state.date_range = (date(2023, 1, 1), DATA_LIMIT_DATE)
 
     return {
         "species": st.session_state.selected_species,

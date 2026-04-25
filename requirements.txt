@@ -23,3 +23,6 @@ seaborn
 
 # LLM integration
 anthropic
+statsmodels
+google-generativeai
+google-genai
