@@ -94,7 +94,13 @@ source .venv/bin/activate          # macOS/Linux
 # .venv\Scripts\activate           # Windows
 
 # Abhängigkeiten installieren
-pip install -r requirements.txt
+pip install -r requirements-lock.txt
+```
+
+### App starten
+
+```bash
+streamlit run app/Home.py
 ```
 
 ### Daten herunterladen & Datenbank erstellen

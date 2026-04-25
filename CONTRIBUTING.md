@@ -115,7 +115,7 @@ def pearson_correlation(x: pd.Series, y: pd.Series) -> tuple[float, float]:
 ### Reproduzierbarkeit
 
 - Jeder muss die App bei sich lokal zum Laufen bringen.
-- Wenn `git pull && pip install -r requirements.txt && streamlit run ...`
+- Wenn `git pull && pip install -r requirements-lock.txt && streamlit run app/Home.py`
   nicht klappt, ist das ein Blocker, kein Komfort-Thema.
 - Wenn du neue Abhängigkeiten hinzufügst: `requirements.txt` aktualisieren
   und im PR erwähnen.
