@@ -1,5 +1,6 @@
 """Central analysis module for statistical calculations and data merging."""
 
+import re
 import pandas as pd
 from scipy import stats
 
@@ -17,8 +18,11 @@ def aggregate_daily(observations_df: pd.DataFrame) -> pd.DataFrame:
     """
     df = observations_df.copy()
     
-    # Handle 'X' and non-numeric values
-    df["sighting_count"] = pd.to_numeric(df["observation_count"], errors="coerce").fillna(1)
+    # 'X' means species was present but uncounted; treat as 1.
+    # Regex matches only pure integer strings; anything else (including 'X') maps to 1.
+    df["sighting_count"] = df["observation_count"].apply(
+        lambda v: int(v) if re.fullmatch(r"\d+", str(v).strip()) else 1
+    )
     
     # Aggregate by date
     daily = df.groupby("observation_date")["sighting_count"].sum().reset_index()
