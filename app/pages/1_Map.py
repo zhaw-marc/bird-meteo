@@ -38,6 +38,27 @@ else:
     m = folium.Map(location=[CH_CENTER_LAT, CH_CENTER_LON], zoom_start=MAP_ZOOM_START, tiles="CartoDB positron")
     heat_data = df[["latitude", "longitude", "total_count"]].values.tolist()
     HeatMap(heat_data, radius=HEATMAP_RADIUS, blur=HEATMAP_BLUR).add_to(m)
+
+    legend_html = """
+    <div style="
+        position: fixed; bottom: 30px; right: 30px; z-index: 1000;
+        background: white; padding: 12px 16px; border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        font-family: sans-serif; font-size: 12px; line-height: 1.5;
+    ">
+        <div style="font-weight: 700; margin-bottom: 6px; color: #0f172a;">Sighting Density</div>
+        <div style="
+            width: 140px; height: 10px; border-radius: 5px;
+            background: linear-gradient(to right, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000);
+            margin-bottom: 4px;
+        "></div>
+        <div style="display: flex; justify-content: space-between; width: 140px; color: #64748b;">
+            <span>Low</span><span>High</span>
+        </div>
+    </div>
+    """
+    m.get_root().html.add_child(folium.Element(legend_html))
+
     st_folium(m, width=1200, height=600, returned_objects=[])
 
     st.caption("Intensity reflects density of sightings. Data aggregated by locality.")

@@ -4,6 +4,71 @@ import streamlit as st
 from src.db import get_species_list
 from src.config import DATA_LIMIT_DATE, DEFAULT_START_DATE, DATA_START_DATE
 
+_CSS = """
+<style>
+/* Hide Streamlit default footer and menu */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+
+/* Page title underline */
+h1 {
+    font-weight: 700;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 1.25rem;
+}
+
+/* Metric cards */
+[data-testid="stMetric"] {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+}
+[data-testid="stMetricLabel"] {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+}
+[data-testid="stMetricValue"] {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    border-right: 1px solid #e2e8f0;
+}
+[data-testid="stSidebar"] h1 {
+    border-bottom: none;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+}
+
+/* Buttons */
+[data-testid="stButton"] > button {
+    border-radius: 6px;
+    font-weight: 600;
+    padding: 0.4rem 1.2rem;
+}
+
+/* Info / success / warning boxes */
+[data-testid="stAlert"] {
+    border-radius: 6px;
+}
+
+/* Expander */
+details summary {
+    font-weight: 600;
+}
+</style>
+"""
+
 
 def render_sidebar() -> dict:
     """
@@ -12,6 +77,7 @@ def render_sidebar() -> dict:
     Returns:
         dict: Current filter values {species: str, start_date: date, end_date: date}
     """
+    st.markdown(_CSS, unsafe_allow_html=True)
     st.sidebar.title("Filters")
 
     species_list = get_species_list()
