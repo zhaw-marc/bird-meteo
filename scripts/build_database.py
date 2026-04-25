@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Import the eBird Basic Dataset (TSV) into a SQLite database.
 
-Reads  data/ebird/ebd_CH_smp_relFeb-2026.txt  (observations) and
-       data/ebird/ebd_CH_smp_relFeb-2026_sampling.txt  (checklists)
-and writes  data/ebird.db .
+Reads the observation and sampling TSV files from data/ebird/
+and writes data/ebird.db.
 
 Only columns relevant for the weather–bird analysis are kept.
 
@@ -11,6 +10,7 @@ AUTHOR: Marc Vogelmann
 """
 
 import csv
+import glob
 import os
 import sqlite3
 import sys
@@ -21,9 +21,6 @@ BASE_DIR = os.path.join(os.path.dirname(__file__), os.pardir)
 DATA_DIR = os.path.join(BASE_DIR, "data")
 EBIRD_DIR = os.path.join(DATA_DIR, "ebird")
 DB_PATH = os.path.join(DATA_DIR, "ebird.db")
-
-OBS_FILE = os.path.join(EBIRD_DIR, "ebd_CH_smp_relFeb-2026.txt")
-SAMPLING_FILE = os.path.join(EBIRD_DIR, "ebd_CH_smp_relFeb-2026_sampling.txt")
 
 # ── Columns to keep from the observations file ──────────────────────────────
 OBS_COLUMNS = [
@@ -219,10 +216,26 @@ def _import_tsv(
 
 
 def main() -> None:
-    if not os.path.isfile(OBS_FILE):
-        sys.exit(f"Observations file not found: {OBS_FILE}\nRun scripts/download_ebird.py first.")
-    if not os.path.isfile(SAMPLING_FILE):
-        sys.exit(f"Sampling file not found: {SAMPLING_FILE}\nRun scripts/download_ebird.py first.")
+    # Dynamically find the observation and sampling files
+    sampling_files = glob.glob(os.path.join(EBIRD_DIR, "*_sampling.txt"))
+    obs_files = [
+        f for f in glob.glob(os.path.join(EBIRD_DIR, "ebd_*.txt"))
+        if not f.endswith("_sampling.txt")
+    ]
+
+    if not obs_files:
+        sys.exit(
+            f"Observations file not found in {EBIRD_DIR}\n"
+            "Run scripts/download_ebird.py first."
+        )
+    if not sampling_files:
+        sys.exit(
+            f"Sampling file not found in {EBIRD_DIR}\n"
+            "Run scripts/download_ebird.py first."
+        )
+
+    obs_path = obs_files[0]
+    sampling_path = sampling_files[0]
 
     # Remove old DB so we get a clean build
     if os.path.exists(DB_PATH):
@@ -237,11 +250,11 @@ def main() -> None:
     conn.executescript(SQL_CREATE_OBSERVATIONS)
     conn.executescript(SQL_CREATE_CHECKLISTS)
 
-    print(f"Importing observations from {os.path.basename(OBS_FILE)} ...")
-    _import_tsv(conn, OBS_FILE, "observations", OBS_COLUMNS)
+    print(f"Importing observations from {os.path.basename(obs_path)} ...")
+    _import_tsv(conn, obs_path, "observations", OBS_COLUMNS)
 
-    print(f"Importing checklists from {os.path.basename(SAMPLING_FILE)} ...")
-    _import_tsv(conn, SAMPLING_FILE, "checklists", SAMPLING_COLUMNS)
+    print(f"Importing checklists from {os.path.basename(sampling_path)} ...")
+    _import_tsv(conn, sampling_path, "checklists", SAMPLING_COLUMNS)
 
     print("Creating indexes ...")
     for idx_sql in SQL_CREATE_INDEXES:
