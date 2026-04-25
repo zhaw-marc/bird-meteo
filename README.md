@@ -169,5 +169,5 @@ Detail-Aufgaben im [GitHub Project Board](../../projects).
 
 ## Tech-Stack
 
-Python, Streamlit, Pandas, SQLite, SciPy, Folium, Anthropic Claude API.
+Python, Streamlit, Pandas, SQLite, SciPy, Folium, Google Gemini API.
 
