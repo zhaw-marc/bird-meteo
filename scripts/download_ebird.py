@@ -22,17 +22,24 @@ def download(url: str, dest: str) -> None:
     """Download a file from *url* to *dest* with progress reporting."""
     print(f"Downloading from {url} ...")
 
+    last_pct = -1
+
     def _progress(block_num: int, block_size: int, total_size: int) -> None:
+        nonlocal last_pct
         downloaded = block_num * block_size
         if total_size > 0:
-            pct = min(100, downloaded * 100 / total_size)
-            mb = downloaded / 1_048_576
-            total_mb = total_size / 1_048_576
-            sys.stdout.write(f"\r  {pct:5.1f}%  ({mb:.1f} / {total_mb:.1f} MB)")
+            pct = int(min(100, downloaded * 100 / total_size))
+            if pct % 5 == 0 and pct != last_pct:
+                mb = downloaded / 1_048_576
+                total_mb = total_size / 1_048_576
+                print(f"  {pct:3d}%  ({mb:6.1f} / {total_mb:6.1f} MB)")
+                last_pct = pct
         else:
-            mb = downloaded / 1_048_576
-            sys.stdout.write(f"\r  {mb:.1f} MB downloaded")
-        sys.stdout.flush()
+            # For unknown total size, print every 50MB
+            mb = int(downloaded / 1_048_576)
+            if mb % 50 == 0 and mb != last_pct:
+                print(f"  {mb:6.1f} MB downloaded")
+                last_pct = mb
 
     urllib.request.urlretrieve(url, dest, reporthook=_progress)
     print()  # newline after progress

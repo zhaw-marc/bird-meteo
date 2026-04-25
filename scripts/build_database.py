@@ -216,11 +216,16 @@ def _import_tsv(
 
 
 def main() -> None:
-    # Dynamically find the observation and sampling files
-    sampling_files = glob.glob(os.path.join(EBIRD_DIR, "*_sampling.txt"))
+    # Dynamically find the observation and sampling files recursively
+    # (Handling cases where the ZIP contains subdirectories)
+    all_txt_files = glob.glob(os.path.join(EBIRD_DIR, "**", "*.txt"), recursive=True)
+    
+    sampling_files = [f for f in all_txt_files if f.endswith("_sampling.txt")]
     obs_files = [
-        f for f in glob.glob(os.path.join(EBIRD_DIR, "ebd_*.txt"))
-        if not f.endswith("_sampling.txt")
+        f for f in all_txt_files 
+        if os.path.basename(f).startswith("ebd_") 
+        and f.endswith(".txt")
+        and not f.endswith("_sampling.txt")
     ]
 
     if not obs_files:
