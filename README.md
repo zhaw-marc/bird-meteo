@@ -8,6 +8,39 @@ Vogelsichtungen in der Schweiz.
 
 ---
 
+## Live Demo
+
+Die App ist unter folgender URL erreichbar:
+
+https://bird-meteo.tail952aaf.ts.net/
+
+Infrastruktur: Proxmox-Server (Heimserver) mit Ubuntu-VM, Docker-Container und
+Tailscale-Sidecar fur den sicheren Zugriff uber das Tailnet.
+
+```mermaid
+graph TD
+    Internet["Internet / Browser"]
+
+    subgraph Tailnet["Tailscale Tailnet"]
+        URL["bird-meteo.tail952aaf.ts.net"]
+    end
+
+    subgraph Proxmox["Proxmox Host (Heimserver)"]
+        subgraph VM["Ubuntu VM"]
+            subgraph Compose["Docker Compose"]
+                App["bird-meteo\n(Streamlit App)"]
+                Sidecar["tailscale\n(Sidecar Container)"]
+            end
+        end
+    end
+
+    Internet -->|HTTPS| URL
+    URL -->|Tailscale VPN| Sidecar
+    Sidecar -->|tailscale serve| App
+```
+
+---
+
 ## Team
 
 | Name | Rolle | GitHub |
