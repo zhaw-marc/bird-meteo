@@ -916,7 +916,16 @@ def step_findings():
             _generate()
             st.rerun()
 
-    _nav()  # last step — no next button rendered (is_last guard in _nav)
+    col_back, _, col_restart = st.columns([2, 8, 2])
+    with col_back:
+        if st.button("← Back", use_container_width=True):
+            st.session_state.step -= 1
+            st.rerun()
+    with col_restart:
+        if st.button("↺ Start Over", use_container_width=True):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
 
 
 # ── Landing page ──────────────────────────────────────────────────────────────
