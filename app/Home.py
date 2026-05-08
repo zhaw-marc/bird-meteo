@@ -4,6 +4,8 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+import math
+
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
@@ -38,6 +40,7 @@ st.set_page_config(
 
 # ── Session state defaults ────────────────────────────────────────────────────
 for key, val in {
+    "show_landing": True,
     "step": 0,
     "selected_species": None,
     "start_date": DEFAULT_START_DATE,
@@ -215,14 +218,248 @@ section[data-testid="stSidebar"] { display: none !important; }
     border-radius: 6px; border-left-width: 4px; border-left-style: solid;
 }
 
+/* ── Stat metric cards ─────────────────────────────────── */
+[data-testid="column"] { overflow: visible !important; }
+.stat-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    position: relative;
+}
+.stat-label-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 0.35rem;
+}
+.help-q {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    color: white;
+    font-size: 8px;
+    font-weight: 800;
+    cursor: help;
+    position: relative;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: background 0.15s;
+}
+.help-q:hover { background: #94a3b8; }
+.help-q::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: 130%;
+    left: 0;
+    background: #1e293b;
+    color: #f1f5f9;
+    font-size: 0.72rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    line-height: 1.55;
+    padding: 0.6rem 0.8rem;
+    border-radius: 7px;
+    width: 240px;
+    white-space: normal;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+    z-index: 9999;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+}
+.help-q:hover::after { opacity: 1; }
+.stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+}
+.stat-sci {
+    font-size: 0.68rem;
+    color: #94a3b8;
+    margin-top: 0.15rem;
+    font-family: ui-monospace, monospace;
+    letter-spacing: 0.02em;
+}
+
 /* ── Misc ──────────────────────────────────────────────── */
 hr { border-color: #e2e8f0; }
 details summary { font-weight: 600; }
 h1 { font-weight: 700; padding-bottom: 0.4rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.25rem; }
+
+/* ── Landing page ──────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@700;800&display=swap');
+
+.landing-wrap {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    min-height: 72vh;
+    padding: 2rem 0;
+}
+.landing-illustration {
+    flex: 0 0 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.landing-text {
+    flex: 1;
+}
+.landing-title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 2.9rem;
+    font-weight: 800;
+    color: #1d3a8a;
+    line-height: 1.15;
+    margin-bottom: 1.1rem;
+}
+.landing-desc {
+    font-size: 1.05rem;
+    color: #475569;
+    line-height: 1.75;
+    max-width: 460px;
+    margin-bottom: 2rem;
+}
+.landing-features {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 2.2rem;
+    flex-wrap: wrap;
+}
+.landing-feat-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1d4ed8;
+}
+
+@keyframes birdFly {
+    0%   { transform: translate(-20px, 0px);  opacity: 0; }
+    8%   { opacity: 1; }
+    50%  { transform: translate(130px, -28px); opacity: 1; }
+    92%  { opacity: 1; }
+    100% { transform: translate(290px, 15px); opacity: 0; }
+}
+@keyframes birdFly2 {
+    0%   { transform: translate(-20px, 0px);  opacity: 0; }
+    8%   { opacity: 1; }
+    50%  { transform: translate(110px, -18px); opacity: 1; }
+    92%  { opacity: 1; }
+    100% { transform: translate(260px, 10px); opacity: 0; }
+}
+@keyframes rotateSlow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+@keyframes cardFloat1 {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-9px); }
+}
+@keyframes cardFloat2 {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-7px); }
+}
+@keyframes cardFloat3 {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-11px); }
+}
+@keyframes globeFadeIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+}
+@keyframes landingIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.globe-group  { animation: globeFadeIn 0.9s cubic-bezier(0.22,1,0.36,1) forwards; }
+.grid-rotate  { transform-origin: 200px 200px; animation: rotateSlow 28s linear infinite; }
+.bird-1       { animation: birdFly  5s ease-in-out infinite; }
+.bird-2       { animation: birdFly2 5s ease-in-out infinite 2.5s; }
+.card-1       { animation: cardFloat1 3.2s ease-in-out infinite; }
+.card-2       { animation: cardFloat2 3.8s ease-in-out infinite 0.6s; }
+.card-3       { animation: cardFloat3 4.1s ease-in-out infinite 1.2s; }
+.landing-text-anim { animation: landingIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.2s both; }
 </style>
 """
 
 st.markdown(_CSS, unsafe_allow_html=True)
+
+
+# ── Statistical display helpers ───────────────────────────────────────────────
+
+_STAT_HELP = {
+    "pearson_r": (
+        "Pearson's r measures the linear relationship between two variables. "
+        "Ranges from −1 (perfect negative) to +1 (perfect positive). "
+        "Near 0 means little to no linear relationship."
+    ),
+    "p_value": (
+        "The probability that this result occurred by chance alone. "
+        "p < 0.05 is conventionally considered statistically significant. "
+        "A smaller p-value means stronger evidence of a real effect."
+    ),
+}
+
+
+def _to_superscript(n: int) -> str:
+    return str(n).translate(str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"))
+
+
+def _fmt_sci(value: float) -> str:
+    s = f"{value:.2e}"
+    mantissa, exp_part = s.split("e")
+    return f"{float(mantissa):.2f} × 10{_to_superscript(int(exp_part))}"
+
+
+def _fmt_stat(value: float, is_pvalue: bool = False) -> tuple[str, str | None]:
+    """Return (human-readable string, scientific notation string or None)."""
+    if is_pvalue:
+        abs_val = abs(value)
+        if abs_val == 0:
+            return "0.0000", None
+        if abs_val >= 0.001:
+            return f"{value:.4f}", None
+        exp = math.floor(math.log10(abs_val))
+        if exp < -8:
+            return "< 0.00000001", _fmt_sci(value)
+        n_dec = max(4, -exp + 2)
+        return f"{value:.{n_dec}f}", _fmt_sci(value)
+    return f"{value:.3f}", None
+
+
+def _stat_metric(label: str, value: float, key: str, is_pvalue: bool = False) -> None:
+    human, sci = _fmt_stat(value, is_pvalue)
+    tip = _STAT_HELP.get(key, "")
+    sci_html = f'<div class="stat-sci">{sci}</div>' if sci else ""
+    st.markdown(
+        f"""<div class="stat-card">
+  <div class="stat-label-row">
+    {label}<span class="help-q" data-tip="{tip}">?</span>
+  </div>
+  <div class="stat-value">{human}</div>
+  {sci_html}
+</div>""",
+        unsafe_allow_html=True,
+    )
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -461,8 +698,10 @@ def step_weather():
         }
 
         c1, c2, c3 = st.columns(3)
-        c1.metric("Correlation (r)", f"{r:.2f}")
-        c2.metric("p-value", f"{p:.4e}")
+        with c1:
+            _stat_metric("Correlation (r)", r, "pearson_r")
+        with c2:
+            _stat_metric("p-value", p, "p_value", is_pvalue=True)
         c3.metric("Data Points (Days)", len(merged))
 
         if p < 0.05:
@@ -553,7 +792,8 @@ def step_compare():
             c1, c2, c3 = st.columns(3)
             c1.metric(f"Avg Sightings ({label_a})", f"{df_a['sighting_count'].mean():.2f}")
             c2.metric(f"Avg Sightings ({label_b})", f"{df_b['sighting_count'].mean():.2f}")
-            c3.metric("p-value", f"{p_val:.4f}")
+            with c3:
+                _stat_metric("p-value", p_val, "p_value", is_pvalue=True)
 
             if p_val < 0.05:
                 st.success("Significant difference between regions (p < 0.05).")
@@ -651,8 +891,10 @@ def step_findings():
     if weather_impact:
         with st.expander("Weather Impact results used"):
             c1, c2 = st.columns(2)
-            c1.metric("Pearson r", f"{weather_impact['pearson_r']:.2f}")
-            c2.metric("p-value", f"{weather_impact['p_value']:.4e}")
+            with c1:
+                _stat_metric("Pearson r", weather_impact["pearson_r"], "pearson_r")
+            with c2:
+                _stat_metric("p-value", weather_impact["p_value"], "p_value", is_pvalue=True)
 
     if compare_regions:
         with st.expander("Region comparison results used"):
@@ -676,7 +918,140 @@ def step_findings():
     _nav()  # last step — no next button rendered (is_last guard in _nav)
 
 
+# ── Landing page ──────────────────────────────────────────────────────────────
+
+_LANDING_HTML = """
+<div class="landing-wrap">
+
+  <!-- Left: animated illustration -->
+  <div class="landing-illustration">
+    <svg width="380" height="380" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="globeBg" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#bfdbfe"/>
+          <stop offset="100%" stop-color="#dbeafe"/>
+        </radialGradient>
+        <clipPath id="globeClip">
+          <circle cx="200" cy="200" r="162"/>
+        </clipPath>
+        <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#1d3a8a" flood-opacity="0.18"/>
+        </filter>
+      </defs>
+
+      <!-- Globe base -->
+      <g class="globe-group">
+        <circle cx="200" cy="200" r="162" fill="url(#globeBg)"/>
+
+        <!-- Rotating grid lines -->
+        <g class="grid-rotate" clip-path="url(#globeClip)">
+          <line x1="38" y1="140" x2="362" y2="140" stroke="#93c5fd" stroke-width="1.2"/>
+          <line x1="38" y1="170" x2="362" y2="170" stroke="#93c5fd" stroke-width="1.2"/>
+          <line x1="38" y1="200" x2="362" y2="200" stroke="#93c5fd" stroke-width="1.5"/>
+          <line x1="38" y1="230" x2="362" y2="230" stroke="#93c5fd" stroke-width="1.2"/>
+          <line x1="38" y1="260" x2="362" y2="260" stroke="#93c5fd" stroke-width="1.2"/>
+          <line x1="140" y1="38" x2="140" y2="362" stroke="#93c5fd" stroke-width="1.2"/>
+          <line x1="170" y1="38" x2="170" y2="362" stroke="#93c5fd" stroke-width="1.2"/>
+          <line x1="200" y1="38" x2="200" y2="362" stroke="#93c5fd" stroke-width="1.5"/>
+          <line x1="230" y1="38" x2="230" y2="362" stroke="#93c5fd" stroke-width="1.2"/>
+          <line x1="260" y1="38" x2="260" y2="362" stroke="#93c5fd" stroke-width="1.2"/>
+        </g>
+
+        <!-- Globe border -->
+        <circle cx="200" cy="200" r="162" fill="none" stroke="#93c5fd" stroke-width="2"/>
+      </g>
+
+      <!-- Map pin: Switzerland -->
+      <g style="animation: globeFadeIn 1s ease 0.6s both;">
+        <circle cx="198" cy="168" r="16" fill="#ef4444"/>
+        <circle cx="198" cy="168" r="7" fill="white"/>
+        <polygon points="190,180 206,180 198,202" fill="#ef4444"/>
+      </g>
+
+      <!-- Card 1: Temperature (navy) -->
+      <g class="card-1" transform="translate(287, 96)" filter="url(#cardShadow)">
+        <rect width="72" height="72" rx="12" fill="#1d3a8a"/>
+        <!-- Thermometer icon -->
+        <rect x="31" y="12" width="10" height="30" rx="5" fill="#93c5fd"/>
+        <circle cx="36" cy="50" r="9" fill="#60a5fa"/>
+        <rect x="33" y="32" width="6" height="16" fill="#3b82f6"/>
+        <!-- Tick marks -->
+        <line x1="41" y1="18" x2="46" y2="18" stroke="#60a5fa" stroke-width="2"/>
+        <line x1="41" y1="26" x2="46" y2="26" stroke="#60a5fa" stroke-width="2"/>
+      </g>
+
+      <!-- Card 2: Rain (teal) -->
+      <g class="card-2" transform="translate(300, 196)" filter="url(#cardShadow)">
+        <rect width="68" height="68" rx="12" fill="#0ea5e9"/>
+        <!-- Cloud -->
+        <ellipse cx="34" cy="24" rx="16" ry="10" fill="white" opacity="0.9"/>
+        <ellipse cx="22" cy="28" rx="10" ry="8" fill="white" opacity="0.9"/>
+        <ellipse cx="46" cy="28" rx="10" ry="8" fill="white" opacity="0.9"/>
+        <!-- Drops -->
+        <ellipse cx="24" cy="46" rx="3" ry="5" fill="white" opacity="0.8"/>
+        <ellipse cx="34" cy="50" rx="3" ry="5" fill="white" opacity="0.8"/>
+        <ellipse cx="44" cy="46" rx="3" ry="5" fill="white" opacity="0.8"/>
+      </g>
+
+      <!-- Card 3: Wind (mid-blue) -->
+      <g class="card-3" transform="translate(22, 152)" filter="url(#cardShadow)">
+        <rect width="68" height="68" rx="12" fill="#0284c7"/>
+        <!-- Wind lines -->
+        <path d="M12 28 Q30 20 48 28" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+        <path d="M12 36 Q26 28 48 36" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.75"/>
+        <path d="M12 44 Q22 36 44 44" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+        <path d="M48 28 Q56 22 56 18 Q56 12 50 12 Q44 12 44 18" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+      </g>
+
+      <!-- Bird 1 (large, navy) -->
+      <g class="bird-1" transform="translate(58, 205)">
+        <path d="M0 0 C12 -18, 28 -18, 36 0" fill="#1d3a8a"/>
+        <path d="M36 0 C44 -18, 60 -18, 72 0" fill="#1d3a8a"/>
+        <circle cx="36" cy="2" r="4" fill="#1d3a8a"/>
+      </g>
+
+      <!-- Bird 2 (smaller, indigo) -->
+      <g class="bird-2" transform="translate(75, 228)">
+        <path d="M0 0 C8 -12, 18 -12, 24 0" fill="#3b5fc0" opacity="0.75"/>
+        <path d="M24 0 C30 -12, 40 -12, 48 0" fill="#3b5fc0" opacity="0.75"/>
+        <circle cx="24" cy="1" r="3" fill="#3b5fc0" opacity="0.75"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Right: text -->
+  <div class="landing-text landing-text-anim">
+    <div class="landing-title">Bird &amp; Weather<br>Explorer</div>
+    <p class="landing-desc">
+      Discover how Swiss weather shapes bird behaviour.
+      Explore eBird sightings, correlate them with temperature,
+      precipitation and wind, and compare regions across Switzerland
+      &mdash; all in a few clicks.
+    </p>
+    <div class="landing-features">
+      <span class="landing-feat-chip">Heatmap</span>
+      <span class="landing-feat-chip">Pearson Correlation</span>
+      <span class="landing-feat-chip">Regional t-test</span>
+      <span class="landing-feat-chip">AI Summary</span>
+    </div>
+  </div>
+
+</div>
+"""
+
+
+def step_landing():
+    st.markdown(_LANDING_HTML, unsafe_allow_html=True)
+    if st.button("Start Exploring →", type="primary"):
+        st.session_state.show_landing = False
+        st.rerun()
+
+
 # ── Router ────────────────────────────────────────────────────────────────────
+
+if st.session_state.show_landing:
+    step_landing()
+    st.stop()
 
 _stepper()
 
