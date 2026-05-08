@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 import math
 
+import streamlit.components.v1 as components
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
@@ -920,31 +921,107 @@ def step_findings():
 
 # ── Landing page ──────────────────────────────────────────────────────────────
 
-_LANDING_HTML = """
-<div class="landing-wrap">
+_LANDING_COMPONENT_HTML = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:wght@700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: white; font-family: system-ui, sans-serif; overflow: hidden; }
 
-  <!-- Left: animated illustration -->
-  <div class="landing-illustration">
-    <svg width="380" height="380" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  .wrap {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    padding: 1.5rem 0.5rem 0.5rem;
+  }
+  .title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 2.55rem;
+    font-weight: 800;
+    color: #1d3a8a;
+    line-height: 1.15;
+    margin-bottom: 0.9rem;
+  }
+  .desc {
+    font-size: 0.98rem;
+    color: #475569;
+    line-height: 1.75;
+    max-width: 430px;
+    margin-bottom: 1.4rem;
+  }
+  .chips { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .chip {
+    padding: 0.28rem 0.8rem;
+    border-radius: 20px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #1d4ed8;
+  }
+
+  @keyframes birdFly {
+    0%   { transform: translate(-20px, 0px);   opacity: 0; }
+    8%   { opacity: 1; }
+    50%  { transform: translate(130px, -28px);  opacity: 1; }
+    92%  { opacity: 1; }
+    100% { transform: translate(290px, 15px);  opacity: 0; }
+  }
+  @keyframes birdFly2 {
+    0%   { transform: translate(-20px, 0px);   opacity: 0; }
+    8%   { opacity: 1; }
+    50%  { transform: translate(110px, -18px);  opacity: 1; }
+    92%  { opacity: 1; }
+    100% { transform: translate(260px, 10px);  opacity: 0; }
+  }
+  @keyframes rotateSlow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes cf1 { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-9px)} }
+  @keyframes cf2 { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-7px)} }
+  @keyframes cf3 { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-11px)} }
+  @keyframes fadeScale {
+    from { opacity:0; transform:scale(0.88); }
+    to   { opacity:1; transform:scale(1); }
+  }
+  @keyframes slideIn {
+    from { opacity:0; transform:translateX(24px); }
+    to   { opacity:1; transform:translateX(0); }
+  }
+
+  .globe  { animation: fadeScale 0.9s cubic-bezier(0.22,1,0.36,1) forwards; }
+  .grid   { transform-origin: 200px 200px; animation: rotateSlow 28s linear infinite; }
+  .pin    { animation: fadeScale 1s ease 0.6s both; }
+  .card-1 { animation: cf1 3.2s ease-in-out infinite; }
+  .card-2 { animation: cf2 3.8s ease-in-out infinite 0.6s; }
+  .card-3 { animation: cf3 4.1s ease-in-out infinite 1.2s; }
+  .bird-1 { animation: birdFly  5s ease-in-out infinite; }
+  .bird-2 { animation: birdFly2 5s ease-in-out infinite 2.5s; }
+  .text   { animation: slideIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.2s both; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- Illustration -->
+  <div style="flex:0 0 370px;display:flex;justify-content:center;">
+    <svg width="370" height="370" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="globeBg" cx="50%" cy="50%" r="50%">
+        <radialGradient id="bg" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stop-color="#bfdbfe"/>
           <stop offset="100%" stop-color="#dbeafe"/>
         </radialGradient>
-        <clipPath id="globeClip">
-          <circle cx="200" cy="200" r="162"/>
-        </clipPath>
-        <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <clipPath id="clip"><circle cx="200" cy="200" r="162"/></clipPath>
+        <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#1d3a8a" flood-opacity="0.18"/>
         </filter>
       </defs>
 
-      <!-- Globe base -->
-      <g class="globe-group">
-        <circle cx="200" cy="200" r="162" fill="url(#globeBg)"/>
-
-        <!-- Rotating grid lines -->
-        <g class="grid-rotate" clip-path="url(#globeClip)">
+      <g class="globe">
+        <circle cx="200" cy="200" r="162" fill="url(#bg)"/>
+        <g class="grid" clip-path="url(#clip)">
           <line x1="38" y1="140" x2="362" y2="140" stroke="#93c5fd" stroke-width="1.2"/>
           <line x1="38" y1="170" x2="362" y2="170" stroke="#93c5fd" stroke-width="1.2"/>
           <line x1="38" y1="200" x2="362" y2="200" stroke="#93c5fd" stroke-width="1.5"/>
@@ -956,92 +1033,78 @@ _LANDING_HTML = """
           <line x1="230" y1="38" x2="230" y2="362" stroke="#93c5fd" stroke-width="1.2"/>
           <line x1="260" y1="38" x2="260" y2="362" stroke="#93c5fd" stroke-width="1.2"/>
         </g>
-
-        <!-- Globe border -->
         <circle cx="200" cy="200" r="162" fill="none" stroke="#93c5fd" stroke-width="2"/>
       </g>
 
-      <!-- Map pin: Switzerland -->
-      <g style="animation: globeFadeIn 1s ease 0.6s both;">
+      <g class="pin">
         <circle cx="198" cy="168" r="16" fill="#ef4444"/>
-        <circle cx="198" cy="168" r="7" fill="white"/>
+        <circle cx="198" cy="168" r="7"  fill="white"/>
         <polygon points="190,180 206,180 198,202" fill="#ef4444"/>
       </g>
 
-      <!-- Card 1: Temperature (navy) -->
-      <g class="card-1" transform="translate(287, 96)" filter="url(#cardShadow)">
+      <g class="card-1" transform="translate(287,96)" filter="url(#sh)">
         <rect width="72" height="72" rx="12" fill="#1d3a8a"/>
-        <!-- Thermometer icon -->
         <rect x="31" y="12" width="10" height="30" rx="5" fill="#93c5fd"/>
         <circle cx="36" cy="50" r="9" fill="#60a5fa"/>
         <rect x="33" y="32" width="6" height="16" fill="#3b82f6"/>
-        <!-- Tick marks -->
         <line x1="41" y1="18" x2="46" y2="18" stroke="#60a5fa" stroke-width="2"/>
         <line x1="41" y1="26" x2="46" y2="26" stroke="#60a5fa" stroke-width="2"/>
       </g>
 
-      <!-- Card 2: Rain (teal) -->
-      <g class="card-2" transform="translate(300, 196)" filter="url(#cardShadow)">
+      <g class="card-2" transform="translate(300,196)" filter="url(#sh)">
         <rect width="68" height="68" rx="12" fill="#0ea5e9"/>
-        <!-- Cloud -->
         <ellipse cx="34" cy="24" rx="16" ry="10" fill="white" opacity="0.9"/>
-        <ellipse cx="22" cy="28" rx="10" ry="8" fill="white" opacity="0.9"/>
-        <ellipse cx="46" cy="28" rx="10" ry="8" fill="white" opacity="0.9"/>
-        <!-- Drops -->
-        <ellipse cx="24" cy="46" rx="3" ry="5" fill="white" opacity="0.8"/>
-        <ellipse cx="34" cy="50" rx="3" ry="5" fill="white" opacity="0.8"/>
-        <ellipse cx="44" cy="46" rx="3" ry="5" fill="white" opacity="0.8"/>
+        <ellipse cx="22" cy="28" rx="10" ry="8"  fill="white" opacity="0.9"/>
+        <ellipse cx="46" cy="28" rx="10" ry="8"  fill="white" opacity="0.9"/>
+        <ellipse cx="24" cy="46" rx="3"  ry="5"  fill="white" opacity="0.8"/>
+        <ellipse cx="34" cy="50" rx="3"  ry="5"  fill="white" opacity="0.8"/>
+        <ellipse cx="44" cy="46" rx="3"  ry="5"  fill="white" opacity="0.8"/>
       </g>
 
-      <!-- Card 3: Wind (mid-blue) -->
-      <g class="card-3" transform="translate(22, 152)" filter="url(#cardShadow)">
+      <g class="card-3" transform="translate(22,152)" filter="url(#sh)">
         <rect width="68" height="68" rx="12" fill="#0284c7"/>
-        <!-- Wind lines -->
         <path d="M12 28 Q30 20 48 28" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
         <path d="M12 36 Q26 28 48 36" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.75"/>
         <path d="M12 44 Q22 36 44 44" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
         <path d="M48 28 Q56 22 56 18 Q56 12 50 12 Q44 12 44 18" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
       </g>
 
-      <!-- Bird 1 (large, navy) -->
-      <g class="bird-1" transform="translate(58, 205)">
-        <path d="M0 0 C12 -18, 28 -18, 36 0" fill="#1d3a8a"/>
-        <path d="M36 0 C44 -18, 60 -18, 72 0" fill="#1d3a8a"/>
+      <g class="bird-1" transform="translate(58,205)">
+        <path d="M0 0 C12 -18,28 -18,36 0" fill="#1d3a8a"/>
+        <path d="M36 0 C44 -18,60 -18,72 0" fill="#1d3a8a"/>
         <circle cx="36" cy="2" r="4" fill="#1d3a8a"/>
       </g>
-
-      <!-- Bird 2 (smaller, indigo) -->
-      <g class="bird-2" transform="translate(75, 228)">
-        <path d="M0 0 C8 -12, 18 -12, 24 0" fill="#3b5fc0" opacity="0.75"/>
-        <path d="M24 0 C30 -12, 40 -12, 48 0" fill="#3b5fc0" opacity="0.75"/>
+      <g class="bird-2" transform="translate(75,228)">
+        <path d="M0 0 C8 -12,18 -12,24 0" fill="#3b5fc0" opacity="0.75"/>
+        <path d="M24 0 C30 -12,40 -12,48 0" fill="#3b5fc0" opacity="0.75"/>
         <circle cx="24" cy="1" r="3" fill="#3b5fc0" opacity="0.75"/>
       </g>
     </svg>
   </div>
 
-  <!-- Right: text -->
-  <div class="landing-text landing-text-anim">
-    <div class="landing-title">Bird &amp; Weather<br>Explorer</div>
-    <p class="landing-desc">
+  <!-- Text -->
+  <div class="text" style="flex:1;">
+    <div class="title">Bird &amp; Weather<br>Explorer</div>
+    <p class="desc">
       Discover how Swiss weather shapes bird behaviour.
       Explore eBird sightings, correlate them with temperature,
       precipitation and wind, and compare regions across Switzerland
       &mdash; all in a few clicks.
     </p>
-    <div class="landing-features">
-      <span class="landing-feat-chip">Heatmap</span>
-      <span class="landing-feat-chip">Pearson Correlation</span>
-      <span class="landing-feat-chip">Regional t-test</span>
-      <span class="landing-feat-chip">AI Summary</span>
+    <div class="chips">
+      <span class="chip">Heatmap</span>
+      <span class="chip">Pearson Correlation</span>
+      <span class="chip">Regional t-test</span>
+      <span class="chip">AI Summary</span>
     </div>
   </div>
-
 </div>
-"""
+</body>
+</html>"""
 
 
 def step_landing():
-    st.markdown(_LANDING_HTML, unsafe_allow_html=True)
+    components.html(_LANDING_COMPONENT_HTML, height=420, scrolling=False)
     if st.button("Start Exploring →", type="primary"):
         st.session_state.show_landing = False
         st.rerun()
