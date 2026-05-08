@@ -39,7 +39,7 @@ st.set_page_config(
 # ── Session state defaults ────────────────────────────────────────────────────
 for key, val in {
     "step": 0,
-    "selected_species": "Eurasian Blackbird",
+    "selected_species": None,
     "start_date": DEFAULT_START_DATE,
     "end_date": DATA_LIMIT_DATE,
     "date_preset": "1yr",
@@ -75,8 +75,9 @@ _CSS = """
 <style>
 /* ── Global resets ─────────────────────────────────────── */
 #MainMenu, footer { visibility: hidden; }
-[data-testid="stSidebarNav"] { display: none !important; }
+[data-testid="stSidebarNav"]   { display: none !important; }
 section[data-testid="stSidebar"] { display: none !important; }
+[data-testid="stToolbar"]      { display: none !important; }
 .main .block-container {
     padding-top: 1.5rem;
     max-width: 1100px;
@@ -282,11 +283,10 @@ def step_setup():
     st.markdown('<div class="step-sub">Select a species and a date range — your choice applies to every step that follows.</div>', unsafe_allow_html=True)
 
     species_list = get_species_list()
-    if st.session_state.selected_species not in species_list:
-        st.session_state.selected_species = species_list[0]
 
     # ── Species ──────────────────────────────────────────────────────────────
     st.markdown('<div class="setup-card"><div class="setup-card-title">Bird Species</div>', unsafe_allow_html=True)
+    st.markdown("**Quick picks:**")
 
     quick_picks = [s for s in POPULAR_SPECIES if s in species_list]
     n_cols = min(len(quick_picks), 5)
@@ -296,22 +296,23 @@ def step_setup():
         for col, sp in zip(cols, row):
             with col:
                 active = sp == st.session_state.selected_species
-                btn_type = "primary" if active else "secondary"
                 label = f"✓ {sp}" if active else sp
-                if st.button(label, key=f"sp_{sp}", use_container_width=True, type=btn_type):
+                if st.button(label, key=f"sp_{sp}", use_container_width=True,
+                             type="primary" if active else "secondary"):
                     st.session_state.selected_species = sp
                     st.rerun()
 
     st.markdown("**Or search all species:**")
-    current_idx = species_list.index(st.session_state.selected_species) if st.session_state.selected_species in species_list else 0
     chosen = st.selectbox(
         "All species",
         options=species_list,
-        index=current_idx,
+        index=None,
+        placeholder="Type to search…",
         label_visibility="collapsed",
     )
-    if chosen != st.session_state.selected_species:
+    if chosen is not None and chosen != st.session_state.selected_species:
         st.session_state.selected_species = chosen
+        st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -345,11 +346,15 @@ def step_setup():
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-    st.info(f"Ready to explore  **{st.session_state.selected_species}**  "
-            f"from {st.session_state.start_date.strftime('%d %b %Y')} "
-            f"to {st.session_state.end_date.strftime('%d %b %Y')}")
+    species_chosen = st.session_state.selected_species
+    if species_chosen:
+        start, end = _resolve_dates(st.session_state.date_preset)
+        st.success(f"Ready to explore **{species_chosen}** "
+                   f"from {start.strftime('%d %b %Y')} to {end.strftime('%d %b %Y')}")
+    else:
+        st.warning("Select a species above to continue.")
 
-    _nav(back=False, next_label="Start Exploring →")
+    _nav(back=False, next_label="Start Exploring →", next_disabled=not species_chosen)
 
 
 # ── Step 1: Map ───────────────────────────────────────────────────────────────
